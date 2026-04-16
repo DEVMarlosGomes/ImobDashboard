@@ -6,7 +6,7 @@ com minha formação como desenvolvedor fullstack.
 
 ## ✦ Demo ao vivo
 
-**[→ Ver dashboard]((https://devmarlosgomes.github.io/ImobDashboard/))**
+**[→ Ver dashboard](https://devmarlosgomes.github.io/ImobDashboard/)**
 
 ---
 
