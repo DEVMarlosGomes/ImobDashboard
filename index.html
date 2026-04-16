@@ -7,990 +7,1061 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg:        #0a0b0d;
-    --surface:   #111316;
-    --surface2:  #181b1f;
-    --border:    rgba(255,255,255,0.07);
-    --border2:   rgba(255,255,255,0.12);
-    --gold:      #c9a84c;
-    --gold-dim:  #9b7a2f;
-    --gold-glow: rgba(201,168,76,0.15);
-    --teal:      #2dd4a0;
-    --teal-dim:  rgba(45,212,160,0.12);
-    --blue:      #5b9cf6;
-    --blue-dim:  rgba(91,156,246,0.12);
-    --coral:     #f4745a;
-    --coral-dim: rgba(244,116,90,0.12);
-    --text:      #e8e6e0;
-    --muted:     #6b6960;
-    --muted2:    #9a9690;
-    --font-serif: 'DM Serif Display', Georgia, serif;
-    --font-sans:  'DM Sans', sans-serif;
-    --r:         12px;
-    --r-lg:      18px;
-  }
+:root {
+  --bg:#0a0b0d; --surface:#111316; --surface2:#181b1f; --surface3:#1e2228;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --gold:#c9a84c; --gold-dim:#9b7a2f; --gold-glow:rgba(201,168,76,0.14);
+  --teal:#2dd4a0; --teal-dim:rgba(45,212,160,0.12);
+  --blue:#5b9cf6; --blue-dim:rgba(91,156,246,0.12);
+  --coral:#f4745a; --coral-dim:rgba(244,116,90,0.12);
+  --purple:#a78bfa; --purple-dim:rgba(167,139,250,0.12);
+  --text:#e8e6e0; --muted:#6b6960; --muted2:#9a9690;
+  --font-serif:'DM Serif Display',Georgia,serif;
+  --font-sans:'DM Sans',sans-serif;
+  --r:12px; --r-lg:18px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* LAYOUT */
+.shell{display:flex;min-height:100vh;position:relative;z-index:1}
 
-  html { scroll-behavior: smooth; }
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:32px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo{padding:0 24px 28px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.logo-mark{font-family:var(--font-serif);font-size:22px;color:var(--gold);letter-spacing:-0.5px;line-height:1.1}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:3px}
+.nav{flex:1;padding:0 12px}
+.nav-section{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);padding:0 12px;margin:20px 0 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted2);transition:all 0.2s;user-select:none;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.nav-item.active{background:var(--gold-glow);color:var(--gold)}
+.nav-item .icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;padding:1px 6px;border-radius:99px;font-weight:500}
+.sidebar-footer{padding:20px 24px 0;border-top:1px solid var(--border)}
+.avatar-row{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--gold));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:14px;color:#0a0b0d;flex-shrink:0}
+.avatar-info .name{font-size:13px;font-weight:500;color:var(--text)}
+.avatar-info .role{font-size:10px;color:var(--muted)}
 
-  body {
-    font-family: var(--font-sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:36px 40px}
 
-  /* grain overlay */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0; opacity: 0.4;
-  }
+/* PAGES */
+.page{display:none;animation:fadeUp 0.4s forwards}
+.page.active{display:block}
 
-  /* ─── LAYOUT ─────────────────────────────────── */
-  .shell { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+/* TOPBAR */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:36px}
+.topbar-title{font-family:var(--font-serif);font-size:32px;color:var(--text);line-height:1.1;margin-bottom:6px}
+.topbar-sub{font-size:13px;color:var(--muted2)}
+.period-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px}
+.period-tab{padding:5px 14px;border-radius:5px;font-size:12px;cursor:pointer;color:var(--muted2);transition:all 0.18s;font-family:var(--font-sans);border:none;background:none}
+.period-tab.active{background:var(--gold);color:#0a0b0d;font-weight:500}
 
-  /* ─── SIDEBAR ────────────────────────────────── */
-  .sidebar {
-    width: 220px; flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    padding: 32px 0;
-    position: sticky; top: 0; height: 100vh;
-  }
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;transition:border-color 0.2s}
+.card:hover{border-color:var(--border2)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-family:var(--font-serif);font-size:16px;color:var(--text)}
+.card-badge{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--gold-glow);color:var(--gold);letter-spacing:0.05em}
 
-  .logo {
-    padding: 0 24px 28px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 28px;
-  }
-  .logo-mark {
-    font-family: var(--font-serif);
-    font-size: 22px;
-    color: var(--gold);
-    letter-spacing: -0.5px;
-    line-height: 1.1;
-  }
-  .logo-sub {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:28px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 22px 18px;position:relative;overflow:hidden;cursor:default;transition:border-color 0.2s,transform 0.2s}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.kpi-card.gold::before{background:var(--gold)}
+.kpi-card.teal::before{background:var(--teal)}
+.kpi-card.blue::before{background:var(--blue)}
+.kpi-card.coral::before{background:var(--coral)}
+.kpi-card.purple::before{background:var(--purple)}
+.kpi-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:14px}
+.kpi-card.gold .kpi-icon{background:var(--gold-glow)}
+.kpi-card.teal .kpi-icon{background:var(--teal-dim)}
+.kpi-card.blue .kpi-icon{background:var(--blue-dim)}
+.kpi-card.coral .kpi-icon{background:var(--coral-dim)}
+.kpi-card.purple .kpi-icon{background:var(--purple-dim)}
+.kpi-label{font-size:11px;color:var(--muted);letter-spacing:0.05em;margin-bottom:5px}
+.kpi-value{font-family:var(--font-serif);font-size:28px;color:var(--text);line-height:1;margin-bottom:8px}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 7px;border-radius:20px}
+.kpi-delta.up{background:rgba(45,212,160,0.1);color:var(--teal)}
+.kpi-delta.down{background:rgba(244,116,90,0.1);color:var(--coral)}
 
-  .nav { flex: 1; padding: 0 12px; }
+/* GRIDS */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:28px}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 
-  .nav-section {
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 12px;
-    margin: 20px 0 8px;
-  }
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0 12px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:400}
+.data-table td{padding:12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,0.02)}
+.data-table td:first-child{padding-left:0}
+.data-table th:first-child{padding-left:0}
 
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--muted2);
-    transition: all 0.2s;
-    user-select: none;
-    margin-bottom: 2px;
-  }
-  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-  .nav-item.active { background: var(--gold-glow); color: var(--gold); }
-  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
+.badge-quente{background:rgba(244,116,90,0.12);color:var(--coral)}
+.badge-morno{background:rgba(201,168,76,0.12);color:var(--gold)}
+.badge-frio{background:var(--blue-dim);color:var(--blue)}
+.badge-fechado{background:var(--teal-dim);color:var(--teal)}
+.badge-purple{background:var(--purple-dim);color:var(--purple)}
+.badge-gray{background:rgba(255,255,255,0.06);color:var(--muted2)}
 
-  .sidebar-footer {
-    padding: 20px 24px 0;
-    border-top: 1px solid var(--border);
-  }
-  .avatar-row { display: flex; align-items: center; gap: 10px; }
-  .avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-serif); font-size: 14px; color: #0a0b0d;
-    flex-shrink: 0;
-  }
-  .avatar-info .name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .avatar-info .role { font-size: 10px; color: var(--muted); }
+/* SEARCH + FILTER BAR */
+.toolbar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
+.search-box{flex:1;min-width:180px;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-family:var(--font-sans);font-size:13px;width:100%}
+.search-box input::placeholder{color:var(--muted)}
+.filter-btn{padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-size:12px;cursor:pointer;font-family:var(--font-sans);transition:all 0.15s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--border2);color:var(--text)}
+.filter-btn.active{background:var(--gold-glow);border-color:var(--gold-dim);color:var(--gold)}
+.action-btn{padding:8px 16px;background:var(--gold);border:none;border-radius:8px;color:#0a0b0d;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-sans);transition:opacity 0.15s;white-space:nowrap}
+.action-btn:hover{opacity:0.85}
 
-  /* ─── MAIN ───────────────────────────────────── */
-  .main { flex: 1; overflow-y: auto; padding: 36px 40px; }
+/* LEAD DETAIL MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-lg);width:520px;max-width:95vw;max-height:85vh;overflow-y:auto;padding:28px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px}
+.modal-close:hover{color:var(--text)}
+.modal-title{font-family:var(--font-serif);font-size:22px;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font-sans);font-size:13px;outline:none;transition:border-color 0.15s;resize:vertical}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--gold)}
+.modal-field select option{background:var(--surface2)}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:8px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
 
-  /* ─── HEADER ─────────────────────────────────── */
-  .topbar {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 36px;
-    opacity: 0; animation: fadeUp 0.6s 0.1s forwards;
-  }
-  .topbar-title {
-    font-family: var(--font-serif);
-    font-size: 32px;
-    color: var(--text);
-    line-height: 1.1;
-    margin-bottom: 6px;
-  }
-  .topbar-sub { font-size: 13px; color: var(--muted2); }
+/* IMOVEIS CARD GRID */
+.imovel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.imovel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.2s}
+.imovel-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.imovel-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
+.imovel-status-tag{position:absolute;top:12px;left:12px;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500}
+.imovel-body{padding:16px}
+.imovel-price{font-family:var(--font-serif);font-size:20px;color:var(--gold);margin-bottom:4px}
+.imovel-addr{font-size:12px;color:var(--muted2);margin-bottom:10px}
+.imovel-attrs{display:flex;gap:12px;font-size:11px;color:var(--muted)}
+.imovel-attr{display:flex;align-items:center;gap:4px}
 
-  .period-tabs {
-    display: flex; gap: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px;
-  }
-  .period-tab {
-    padding: 5px 14px; border-radius: 5px;
-    font-size: 12px; cursor: pointer;
-    color: var(--muted2);
-    transition: all 0.18s;
-    font-family: var(--font-sans);
-    border: none; background: none;
-  }
-  .period-tab.active { background: var(--gold); color: #0a0b0d; font-weight: 500; }
+/* FUNNEL PAGE */
+.funnel-big{display:flex;flex-direction:column;gap:12px}
+.funnel-big-stage{position:relative}
+.funnel-big-bar-wrap{height:52px;background:var(--surface2);border-radius:8px;overflow:hidden;cursor:pointer;transition:filter 0.15s}
+.funnel-big-bar-wrap:hover{filter:brightness(1.1)}
+.funnel-big-bar{height:100%;border-radius:8px;display:flex;align-items:center;padding:0 18px;gap:10px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+.funnel-big-label{font-size:13px;font-weight:500;color:rgba(0,0,0,0.8)}
+.funnel-big-count{font-size:12px;color:rgba(0,0,0,0.6)}
+.funnel-big-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;padding:0 4px}
+.funnel-conv{color:var(--teal);font-weight:500}
 
-  /* ─── KPI CARDS ──────────────────────────────── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0,1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+/* METAS PAGE */
+.meta-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px}
+.meta-progress-wrap{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.meta-progress-bar{height:100%;border-radius:99px;transition:width 1.3s cubic-bezier(0.16,1,0.3,1)}
+.ranking-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ranking-row:last-child{border-bottom:none}
+.rank-num{font-family:var(--font-serif);font-size:18px;color:var(--muted);width:24px;flex-shrink:0}
+.rank-num.gold{color:var(--gold)}
+.rank-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
 
-  .kpi-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 22px 22px 18px;
-    position: relative; overflow: hidden;
-    opacity: 0;
-    animation: fadeUp 0.55s forwards;
-    cursor: default;
-    transition: border-color 0.2s, transform 0.2s;
-  }
-  .kpi-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-  .kpi-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
-  }
-  .kpi-card.gold::before  { background: var(--gold); }
-  .kpi-card.teal::before  { background: var(--teal); }
-  .kpi-card.blue::before  { background: var(--blue); }
-  .kpi-card.coral::before { background: var(--coral); }
+/* RELATORIOS */
+.report-kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:28px}
+.export-btn{padding:8px 16px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:12px;cursor:pointer;font-family:var(--font-sans);transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.export-btn:hover{border-color:var(--gold);color:var(--gold)}
 
-  .kpi-icon {
-    width: 36px; height: 36px; border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; margin-bottom: 14px;
-  }
-  .kpi-card.gold .kpi-icon  { background: var(--gold-glow); }
-  .kpi-card.teal .kpi-icon  { background: var(--teal-dim); }
-  .kpi-card.blue .kpi-icon  { background: var(--blue-dim); }
-  .kpi-card.coral .kpi-icon { background: var(--coral-dim); }
+/* ACTIVITY */
+.activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.activity-text{font-size:12.5px;color:var(--text);line-height:1.4}
+.activity-time{font-size:11px;color:var(--muted);margin-top:2px}
 
-  .kpi-label { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 5px; }
-  .kpi-value { font-family: var(--font-serif); font-size: 28px; color: var(--text); line-height: 1; margin-bottom: 8px; }
-  .kpi-delta {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; padding: 2px 7px; border-radius: 20px;
-  }
-  .kpi-delta.up   { background: rgba(45,212,160,0.1); color: var(--teal); }
-  .kpi-delta.down { background: rgba(244,116,90,0.1); color: var(--coral); }
+/* MAP */
+.map-wrap{position:relative;background:var(--surface2);border-radius:var(--r);overflow:hidden;height:260px;margin-bottom:16px}
 
-  /* ─── CHART GRID ─────────────────────────────── */
-  .chart-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+/* PROGRESS ROW */
+.prog-row{margin-bottom:16px}
+.prog-label-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:6px}
+.prog-track{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width 1.3s cubic-bezier(0.16,1,0.3,1)}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 24px;
-    opacity: 0;
-    animation: fadeUp 0.55s forwards;
-    transition: border-color 0.2s;
-  }
-  .card:hover { border-color: var(--border2); }
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 
-  .card-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .card-title { font-family: var(--font-serif); font-size: 16px; color: var(--text); }
-  .card-badge {
-    font-size: 10px; padding: 3px 9px; border-radius: 20px;
-    background: var(--gold-glow); color: var(--gold);
-    letter-spacing: 0.05em;
-  }
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 
-  canvas { max-width: 100%; }
+/* NOTIFICATION TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);z-index:200;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-icon{margin-right:8px}
 
-  /* ─── BOTTOM GRID ────────────────────────────── */
-  .bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
+/* RESPONSIVE */
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.chart-grid,.chart-grid-3,.bottom-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}}
+@media(max-width:720px){.sidebar{display:none}.main{padding:24px 20px}.kpi-grid{grid-template-columns:1fr 1fr}}
 
-  /* ─── LEADS TABLE ────────────────────────────── */
-  .leads-list { display: flex; flex-direction: column; gap: 0; }
-  .lead-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: padding-left 0.15s;
-  }
-  .lead-row:last-child { border-bottom: none; }
-  .lead-row:hover { padding-left: 4px; }
-  .lead-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .lead-info { flex: 1; min-width: 0; }
-  .lead-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lead-type { font-size: 11px; color: var(--muted); }
-  .lead-value { font-size: 13px; color: var(--gold); font-weight: 500; white-space: nowrap; }
-  .lead-status {
-    font-size: 10px; padding: 2px 8px; border-radius: 20px;
-    white-space: nowrap;
-  }
-  .status-quente  { background: rgba(244,116,90,0.12); color: var(--coral); }
-  .status-morno   { background: rgba(201,168,76,0.12); color: var(--gold); }
-  .status-frio    { background: var(--blue-dim); color: var(--blue); }
-  .status-fechado { background: var(--teal-dim); color: var(--teal); }
-
-  /* ─── FUNNEL ─────────────────────────────────── */
-  .funnel { display: flex; flex-direction: column; gap: 10px; }
-  .funnel-stage { position: relative; }
-  .funnel-bar-wrap {
-    height: 38px; background: var(--surface2);
-    border-radius: 6px; overflow: hidden;
-    margin-bottom: 4px; position: relative;
-  }
-  .funnel-bar {
-    height: 100%;
-    border-radius: 6px;
-    display: flex; align-items: center; padding: 0 12px;
-    transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
-  }
-  .funnel-bar-label { font-size: 12px; font-weight: 500; color: rgba(0,0,0,0.7); white-space: nowrap; }
-  .funnel-meta {
-    display: flex; justify-content: space-between;
-    font-size: 11px; color: var(--muted);
-  }
-  .funnel-count { color: var(--text); font-weight: 500; }
-
-  /* ─── ACTIVITY ───────────────────────────────── */
-  .activity-list { display: flex; flex-direction: column; gap: 0; }
-  .activity-item {
-    display: flex; gap: 12px;
-    padding: 11px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .activity-item:last-child { border-bottom: none; }
-  .activity-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    margin-top: 6px; flex-shrink: 0;
-  }
-  .activity-body { flex: 1; }
-  .activity-text { font-size: 12.5px; color: var(--text); line-height: 1.4; }
-  .activity-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* ─── MAP PSEUDO ─────────────────────────────── */
-  .map-wrap {
-    position: relative;
-    background: var(--surface2);
-    border-radius: var(--r);
-    overflow: hidden;
-    height: 220px;
-    margin-bottom: 16px;
-  }
-  .map-bg {
-    width: 100%; height: 100%;
-    display: block;
-  }
-  .map-pin {
-    position: absolute;
-    transform: translate(-50%, -100%);
-    cursor: pointer;
-  }
-  .map-pin svg { display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
-  .map-pin .pin-label {
-    position: absolute; bottom: calc(100% + 4px); left: 50%;
-    transform: translateX(-50%);
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 5px;
-    padding: 3px 7px;
-    font-size: 10px; color: var(--text);
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0; transition: opacity 0.15s;
-  }
-  .map-pin:hover .pin-label { opacity: 1; }
-
-  .map-legend {
-    display: flex; gap: 14px; flex-wrap: wrap;
-  }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted2); }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-  /* ─── ANIMATIONS ─────────────────────────────── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* stagger */
-  .kpi-card:nth-child(1) { animation-delay: 0.10s; }
-  .kpi-card:nth-child(2) { animation-delay: 0.18s; }
-  .kpi-card:nth-child(3) { animation-delay: 0.26s; }
-  .kpi-card:nth-child(4) { animation-delay: 0.34s; }
-  .card:nth-child(1) { animation-delay: 0.42s; }
-  .card:nth-child(2) { animation-delay: 0.50s; }
-  .card:nth-child(3) { animation-delay: 0.54s; }
-  .card:nth-child(4) { animation-delay: 0.58s; }
-  .card:nth-child(5) { animation-delay: 0.62s; }
-
-  /* ─── COUNTER ANIMATION ──────────────────────── */
-  .counting { transition: all 0.05s; }
-
-  /* ─── SCROLLBAR ──────────────────────────────── */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-
-  /* ─── RESPONSIVE ─────────────────────────────── */
-  @media (max-width: 1100px) {
-    .kpi-grid { grid-template-columns: repeat(2,1fr); }
-    .chart-grid { grid-template-columns: 1fr; }
-    .bottom-grid { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 720px) {
-    .sidebar { display: none; }
-    .main { padding: 24px 20px; }
-    .bottom-grid { grid-template-columns: 1fr; }
-    .kpi-grid { grid-template-columns: 1fr 1fr; }
-  }
-
-  /* ─── GITHUB BANNER ──────────────────────────── */
-  .gh-banner {
-    margin-top: 32px;
-    background: linear-gradient(120deg, var(--surface) 60%, rgba(201,168,76,0.04) 100%);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 20px 24px;
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    opacity: 0; animation: fadeUp 0.55s 0.9s forwards;
-  }
-  .gh-banner-left h3 { font-family: var(--font-serif); font-size: 16px; margin-bottom: 3px; }
-  .gh-banner-left p { font-size: 12px; color: var(--muted2); }
-  .gh-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: var(--gold); color: #0a0b0d;
-    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
-    padding: 9px 18px; border-radius: 8px; text-decoration: none;
-    transition: opacity 0.15s; white-space: nowrap;
-    border: none; cursor: pointer;
-  }
-  .gh-btn:hover { opacity: 0.88; }
-  .gh-btn-outline {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: transparent; color: var(--text);
-    border: 1px solid var(--border2);
-    font-family: var(--font-sans); font-size: 12px;
-    padding: 9px 18px; border-radius: 8px; text-decoration: none;
-    transition: background 0.15s; white-space: nowrap; cursor: pointer;
-  }
-  .gh-btn-outline:hover { background: rgba(255,255,255,0.04); }
-  .gh-btns { display: flex; gap: 8px; flex-shrink: 0; }
-
-  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
-
-  .section-label {
-    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 16px;
-  }
+/* GH BANNER */
+.gh-banner{margin-top:32px;background:linear-gradient(120deg,var(--surface) 60%,rgba(201,168,76,0.04) 100%);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.gh-btn{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:#0a0b0d;font-family:var(--font-sans);font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;text-decoration:none;transition:opacity 0.15s;white-space:nowrap;border:none;cursor:pointer}
+.gh-btn:hover{opacity:0.88}
+.gh-btn-outline{display:inline-flex;align-items:center;gap:7px;background:transparent;color:var(--text);border:1px solid var(--border2);font-family:var(--font-sans);font-size:12px;padding:9px 18px;border-radius:8px;text-decoration:none;transition:background 0.15s;white-space:nowrap;cursor:pointer}
+.gh-btn-outline:hover{background:rgba(255,255,255,0.04)}
 </style>
 </head>
 <body>
-
 <div class="shell">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-mark">Imob<br/>Dashboard</div>
-      <div class="logo-sub">Marlos Gomes</div>
-    </div>
-
-    <nav class="nav">
-      <div class="nav-section">Visão Geral</div>
-      <div class="nav-item active"><span class="icon">◈</span> Painel</div>
-      <div class="nav-item"><span class="icon">◉</span> Leads</div>
-      <div class="nav-item"><span class="icon">▣</span> Imóveis</div>
-
-      <div class="nav-section">Vendas</div>
-      <div class="nav-item"><span class="icon">◈</span> Funil</div>
-      <div class="nav-item"><span class="icon">◎</span> Metas</div>
-      <div class="nav-item"><span class="icon">▦</span> Relatórios</div>
-
-      <div class="nav-section">Configurações</div>
-      <div class="nav-item"><span class="icon">◌</span> Perfil</div>
-      <div class="nav-item"><span class="icon">◎</span> Integrações</div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="avatar-row">
-        <div class="avatar">M</div>
-        <div class="avatar-info">
-          <div class="name">Marlos Gomes</div>
-          <div class="role">Corretor · DEV</div>
-        </div>
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Imob<br/>Dashboard</div>
+    <div class="logo-sub">Marlos Gomes</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Visão Geral</div>
+    <div class="nav-item active" onclick="navigate('painel',this)"><span class="icon">◈</span> Painel</div>
+    <div class="nav-section">Carteira</div>
+    <div class="nav-item" onclick="navigate('leads',this)"><span class="icon">👥</span> Leads <span class="nav-badge">3</span></div>
+    <div class="nav-item" onclick="navigate('imoveis',this)"><span class="icon">🏠</span> Imóveis</div>
+    <div class="nav-section">Vendas</div>
+    <div class="nav-item" onclick="navigate('funil',this)"><span class="icon">◎</span> Funil</div>
+    <div class="nav-item" onclick="navigate('metas',this)"><span class="icon">🎯</span> Metas</div>
+    <div class="nav-item" onclick="navigate('relatorios',this)"><span class="icon">📊</span> Relatórios</div>
+    <div class="nav-section">Conta</div>
+    <div class="nav-item" onclick="navigate('perfil',this)"><span class="icon">◌</span> Perfil</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar-row">
+      <div class="avatar">M</div>
+      <div class="avatar-info">
+        <div class="name">Marlos Gomes</div>
+        <div class="role">Corretor · DEV</div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
+<!-- ═══ MAIN ═══ -->
+<main class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: PAINEL                              -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page active" id="page-painel">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="greeting">Bom dia, Marlos ✦</div>
+      <div class="topbar-sub">Resumo da carteira — Abril 2025</div>
+    </div>
+    <div class="period-tabs">
+      <button class="period-tab" onclick="setPeriod('7d',this)">7d</button>
+      <button class="period-tab active" onclick="setPeriod('30d',this)">30d</button>
+      <button class="period-tab" onclick="setPeriod('90d',this)">90d</button>
+      <button class="period-tab" onclick="setPeriod('12m',this)">12m</button>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card gold"><div class="kpi-icon">💰</div><div class="kpi-label">Volume de Vendas</div><div class="kpi-value">R$ 3,2M</div><span class="kpi-delta up">▲ +18% vs mês ant.</span></div>
+    <div class="kpi-card teal"><div class="kpi-icon">🏠</div><div class="kpi-label">Imóveis Fechados</div><div class="kpi-value">12</div><span class="kpi-delta up">▲ +3 este mês</span></div>
+    <div class="kpi-card blue"><div class="kpi-icon">👥</div><div class="kpi-label">Leads Ativos</div><div class="kpi-value">47</div><span class="kpi-delta up">▲ +11 novos</span></div>
+    <div class="kpi-card coral"><div class="kpi-icon">📊</div><div class="kpi-label">Tx. Conversão</div><div class="kpi-value">24%</div><span class="kpi-delta down">▼ -2% vs meta</span></div>
+  </div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Volume de Vendas Mensal</div><span class="card-badge">R$ 3,2M este mês</span></div>
+      <canvas id="salesChart" height="110"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Carteira por Tipo</div></div>
+      <canvas id="typeChart" height="160"></canvas>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block"></span>Apartamento</span>
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block"></span>Casa</span>
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block"></span>Comercial</span>
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--coral);display:inline-block"></span>Terreno</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Leads em Aberto</div><span style="font-size:11px;color:var(--muted)">47 total</span></div>
+      <table class="data-table">
+        <tr><td><strong>Carlos H. M.</strong><br><span style="font-size:11px;color:var(--muted)">Apto 3dorm · Mooca</span></td><td style="color:var(--gold)">R$680k</td><td><span class="badge badge-quente">Quente</span></td></tr>
+        <tr><td><strong>Fernanda O.</strong><br><span style="font-size:11px;color:var(--muted)">Casa · V.Prudente</span></td><td style="color:var(--gold)">R$490k</td><td><span class="badge badge-morno">Morno</span></td></tr>
+        <tr><td><strong>Roberto A.</strong><br><span style="font-size:11px;color:var(--muted)">Comercial · Centro</span></td><td style="color:var(--gold)">R$320k</td><td><span class="badge badge-fechado">Fechado ✓</span></td></tr>
+        <tr><td><strong>Ana Paula C.</strong><br><span style="font-size:11px;color:var(--muted)">Apto 2dorm · Tatuapé</span></td><td style="color:var(--gold)">R$410k</td><td><span class="badge badge-frio">Frio</span></td></tr>
+        <tr><td><strong>Marcos S.</strong><br><span style="font-size:11px;color:var(--muted)">Terreno · Itaquera</span></td><td style="color:var(--gold)">R$210k</td><td><span class="badge badge-quente">Quente</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Funil Rápido</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div><div style="height:36px;background:var(--surface2);border-radius:6px;overflow:hidden"><div id="pf1" style="height:100%;width:0;background:var(--gold);border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:500;color:rgba(0,0,0,0.7);transition:width 1.2s cubic-bezier(0.16,1,0.3,1)">Prospecção</div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>Contatos iniciais</span><span style="color:var(--text)">84</span></div></div>
+        <div><div style="height:36px;background:var(--surface2);border-radius:6px;overflow:hidden"><div id="pf2" style="height:100%;width:0;background:var(--blue);border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:500;color:rgba(0,0,0,0.7);transition:width 1.2s cubic-bezier(0.16,1,0.3,1)">Qualificados</div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>Interesse confirmado</span><span style="color:var(--text)">47</span></div></div>
+        <div><div style="height:36px;background:var(--surface2);border-radius:6px;overflow:hidden"><div id="pf3" style="height:100%;width:0;background:var(--teal);border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:500;color:rgba(0,0,0,0.7);transition:width 1.2s cubic-bezier(0.16,1,0.3,1)">Visitas</div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>Imóvel visitado</span><span style="color:var(--text)">28</span></div></div>
+        <div><div style="height:36px;background:var(--surface2);border-radius:6px;overflow:hidden"><div id="pf4" style="height:100%;width:0;background:var(--coral);border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:500;color:rgba(0,0,0,0.7);transition:width 1.2s cubic-bezier(0.16,1,0.3,1)">Proposta</div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>Em negociação</span><span style="color:var(--text)">16</span></div></div>
+        <div><div style="height:36px;background:var(--surface2);border-radius:6px;overflow:hidden"><div id="pf5" style="height:100%;width:0;background:var(--purple);border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:500;color:rgba(0,0,0,0.7);transition:width 1.2s cubic-bezier(0.16,1,0.3,1)">Fechamento</div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>Contratos assinados</span><span style="color:var(--text)">12</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Atividade Recente</div></div>
       <div>
-        <div class="topbar-title">Bom dia, Marlos ✦</div>
-        <div class="topbar-sub">Aqui está o resumo da sua carteira — Abril 2025</div>
-      </div>
-      <div class="period-tabs">
-        <button class="period-tab" onclick="setPeriod('7d',this)">7d</button>
-        <button class="period-tab active" onclick="setPeriod('30d',this)">30d</button>
-        <button class="period-tab" onclick="setPeriod('90d',this)">90d</button>
-        <button class="period-tab" onclick="setPeriod('12m',this)">12m</button>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--teal)"></div><div><div class="activity-text">Contrato assinado — Apto Mooca · <strong>R$680k</strong></div><div class="activity-time">Hoje, 14h22</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--gold)"></div><div><div class="activity-text">Proposta enviada — Fernanda · Casa V.Prudente</div><div class="activity-time">Hoje, 11h05</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--blue)"></div><div><div class="activity-text">Visita agendada — Ana Paula · Tatuapé · Sáb 10h</div><div class="activity-time">Ontem, 17h30</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--coral)"></div><div><div class="activity-text">Novo lead captado via Instagram — Marcos Souza</div><div class="activity-time">Ontem, 09h14</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--muted)"></div><div><div class="activity-text">Meta mensal atingida 94% — 12 de 13 fechamentos</div><div class="activity-time">26/04, 18h00</div></div></div>
       </div>
     </div>
-
-    <!-- KPI CARDS -->
-    <div class="kpi-grid">
-      <div class="kpi-card gold">
-        <div class="kpi-icon">💰</div>
-        <div class="kpi-label">Volume de Vendas</div>
-        <div class="kpi-value" id="kv">R$ 3,2M</div>
-        <span class="kpi-delta up">▲ +18% vs mês ant.</span>
+  </div>
+  <div style="margin-top:28px" class="chart-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Mapa de Leads — São Paulo</div><span class="card-badge">Zona Leste · Foco</span></div>
+      <div class="map-wrap">
+        <svg width="100%" height="100%" viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+          <rect width="520" height="260" fill="#13161a"/>
+          <g stroke="#1e2228" stroke-width="0.5"><line x1="0" y1="52" x2="520" y2="52"/><line x1="0" y1="104" x2="520" y2="104"/><line x1="0" y1="156" x2="520" y2="156"/><line x1="0" y1="208" x2="520" y2="208"/><line x1="104" y1="0" x2="104" y2="260"/><line x1="208" y1="0" x2="208" y2="260"/><line x1="312" y1="0" x2="312" y2="260"/><line x1="416" y1="0" x2="416" y2="260"/></g>
+          <path d="M40,180 Q90,155 140,142 Q185,130 225,122 Q265,114 295,108 Q330,102 365,97 Q400,93 428,108 Q455,123 468,148 Q478,170 462,200 Q448,225 408,230 Q365,235 320,232 Q275,229 235,222 Q190,214 150,208 Q105,202 72,208 Q48,213 40,197 Z" fill="#1a1e24" stroke="#252a32" stroke-width="1"/>
+          <path d="M40,158 Q190,144 315,132 Q415,123 490,130" fill="none" stroke="#252a32" stroke-width="1.5"/>
+          <path d="M215,65 Q222,110 227,158 Q230,190 232,230" fill="none" stroke="#252a32" stroke-width="1"/>
+          <path d="M295,80 Q303,118 308,162 Q312,192 314,235" fill="none" stroke="#252a32" stroke-width="1"/>
+          <g transform="translate(280,132)"><circle r="12" fill="rgba(201,168,76,0.15)"><animate attributeName="r" values="12;20;12" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite"/></circle><circle r="5" fill="#c9a84c"/><text x="9" y="-9" fill="#c9a84c" font-size="9" font-family="DM Sans,sans-serif">Mooca · R$680k</text></g>
+          <g transform="translate(342,112)"><circle r="4" fill="#5b9cf6"/><text x="8" y="-6" fill="#5b9cf6" font-size="9" font-family="DM Sans,sans-serif">Tatuapé · R$410k</text></g>
+          <g transform="translate(248,162)"><circle r="4" fill="#c9a84c"/><text x="8" y="-6" fill="#c9a84c" font-size="9" font-family="DM Sans,sans-serif">V.Prudente · R$490k</text></g>
+          <g transform="translate(402,134)"><circle r="12" fill="rgba(244,116,90,0.15)"><animate attributeName="r" values="12;20;12" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/></circle><circle r="5" fill="#f4745a"/><text x="8" y="-9" fill="#f4745a" font-size="9" font-family="DM Sans,sans-serif">Itaquera · R$210k</text></g>
+          <g transform="translate(200,152)"><circle r="4" fill="#2dd4a0"/><text x="8" y="-6" fill="#2dd4a0" font-size="9" font-family="DM Sans,sans-serif">Centro · R$320k</text></g>
+          <text x="14" y="18" fill="#3a4050" font-size="9" font-family="DM Sans,sans-serif" letter-spacing="0.1em">SÃO PAULO — SP</text>
+        </svg>
       </div>
-      <div class="kpi-card teal">
-        <div class="kpi-icon">🏠</div>
-        <div class="kpi-label">Imóveis Fechados</div>
-        <div class="kpi-value" id="kf">12</div>
-        <span class="kpi-delta up">▲ +3 este mês</span>
-      </div>
-      <div class="kpi-card blue">
-        <div class="kpi-icon">👥</div>
-        <div class="kpi-label">Leads Ativos</div>
-        <div class="kpi-value" id="kl">47</div>
-        <span class="kpi-delta up">▲ +11 novos</span>
-      </div>
-      <div class="kpi-card coral">
-        <div class="kpi-icon">📊</div>
-        <div class="kpi-label">Taxa de Conversão</div>
-        <div class="kpi-value" id="kt">24%</div>
-        <span class="kpi-delta down">▼ -2% vs meta</span>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--coral);display:inline-block"></span>Lead quente</span>
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block"></span>Negociação</span>
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block"></span>Fechado</span>
+        <span style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block"></span>Frio</span>
       </div>
     </div>
-
-    <!-- CHARTS ROW -->
-    <div class="chart-grid">
-
-      <!-- Vendas chart -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Volume de Vendas Mensal</div>
-          <span class="card-badge">R$ 3,2M este mês</span>
-        </div>
-        <canvas id="salesChart" height="110"></canvas>
-      </div>
-
-      <!-- Donut tipo imóvel -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Carteira por Tipo</div>
-        </div>
-        <canvas id="typeChart" height="160"></canvas>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
-          <div class="legend-item"><div class="legend-dot" style="background:#c9a84c"></div>Apartamento</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#2dd4a0"></div>Casa</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#5b9cf6"></div>Comercial</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#f4745a"></div>Terreno</div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Metas do Mês</div><span style="font-size:11px;color:var(--muted)">Abril 2025</span></div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="prog-row"><div class="prog-label-row"><span>Volume de Vendas</span><span style="color:var(--gold)">R$3,2M / R$3,5M</span></div><div class="prog-track"><div class="prog-fill" style="width:91%;background:var(--gold)"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px">91% — faltam R$300k</div></div>
+        <div class="prog-row"><div class="prog-label-row"><span>Imóveis Fechados</span><span style="color:var(--teal)">12 / 13</span></div><div class="prog-track"><div class="prog-fill" style="width:92%;background:var(--teal)"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px">92% — falta 1</div></div>
+        <div class="prog-row"><div class="prog-label-row"><span>Novos Leads</span><span style="color:var(--blue)">47 / 50</span></div><div class="prog-track"><div class="prog-fill" style="width:94%;background:var(--blue)"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px">94% — faltam 3</div></div>
+        <div class="prog-row"><div class="prog-label-row"><span>Taxa de Conversão</span><span style="color:var(--coral)">24% / 26%</span></div><div class="prog-track"><div class="prog-fill" style="width:76%;background:var(--coral)"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px">76% da meta</div></div>
+        <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Score geral</div><div style="font-family:var(--font-serif);font-size:28px;color:var(--gold)">91<span style="font-size:14px;color:var(--muted)">/100</span></div></div>
+          <div style="width:64px;height:64px"><canvas id="scoreChart"></canvas></div>
         </div>
       </div>
     </div>
-
-    <!-- BOTTOM ROW -->
-    <div class="bottom-grid">
-
-      <!-- LEADS -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Leads em Aberto</div>
-          <span style="font-size:11px;color:var(--muted)">47 total</span>
-        </div>
-        <div class="leads-list">
-          <div class="lead-row">
-            <div class="lead-dot" style="background:var(--coral)"></div>
-            <div class="lead-info">
-              <div class="lead-name">Carlos Henrique M.</div>
-              <div class="lead-type">Apto 3 dorm · Mooca</div>
-            </div>
-            <div class="lead-value">R$680k</div>
-            <span class="lead-status status-quente">Quente</span>
-          </div>
-          <div class="lead-row">
-            <div class="lead-dot" style="background:var(--gold)"></div>
-            <div class="lead-info">
-              <div class="lead-name">Fernanda Oliveira</div>
-              <div class="lead-type">Casa · Vila Prudente</div>
-            </div>
-            <div class="lead-value">R$490k</div>
-            <span class="lead-status status-morno">Morno</span>
-          </div>
-          <div class="lead-row">
-            <div class="lead-dot" style="background:var(--teal)"></div>
-            <div class="lead-info">
-              <div class="lead-name">Roberto Almeida</div>
-              <div class="lead-type">Sala comercial · Centro</div>
-            </div>
-            <div class="lead-value">R$320k</div>
-            <span class="lead-status status-fechado">Fechado ✓</span>
-          </div>
-          <div class="lead-row">
-            <div class="lead-dot" style="background:var(--blue)"></div>
-            <div class="lead-info">
-              <div class="lead-name">Ana Paula Costa</div>
-              <div class="lead-type">Apto 2 dorm · Tatuapé</div>
-            </div>
-            <div class="lead-value">R$410k</div>
-            <span class="lead-status status-frio">Frio</span>
-          </div>
-          <div class="lead-row">
-            <div class="lead-dot" style="background:var(--coral)"></div>
-            <div class="lead-info">
-              <div class="lead-name">Marcos Souza</div>
-              <div class="lead-type">Terreno · Itaquera</div>
-            </div>
-            <div class="lead-value">R$210k</div>
-            <span class="lead-status status-quente">Quente</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- FUNNEL -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Funil de Vendas</div>
-        </div>
-        <div class="funnel">
-          <div class="funnel-stage">
-            <div class="funnel-bar-wrap">
-              <div class="funnel-bar" id="f1" style="width:0%;background:var(--gold)">
-                <span class="funnel-bar-label">Prospecção</span>
-              </div>
-            </div>
-            <div class="funnel-meta"><span>Contatos iniciais</span><span class="funnel-count">84</span></div>
-          </div>
-          <div class="funnel-stage">
-            <div class="funnel-bar-wrap">
-              <div class="funnel-bar" id="f2" style="width:0%;background:var(--blue)">
-                <span class="funnel-bar-label">Qualificados</span>
-              </div>
-            </div>
-            <div class="funnel-meta"><span>Interesse confirmado</span><span class="funnel-count">47</span></div>
-          </div>
-          <div class="funnel-stage">
-            <div class="funnel-bar-wrap">
-              <div class="funnel-bar" id="f3" style="width:0%;background:var(--teal)">
-                <span class="funnel-bar-label">Visitas</span>
-              </div>
-            </div>
-            <div class="funnel-meta"><span>Imóvel visitado</span><span class="funnel-count">28</span></div>
-          </div>
-          <div class="funnel-stage">
-            <div class="funnel-bar-wrap">
-              <div class="funnel-bar" id="f4" style="width:0%;background:var(--coral)">
-                <span class="funnel-bar-label">Proposta</span>
-              </div>
-            </div>
-            <div class="funnel-meta"><span>Em negociação</span><span class="funnel-count">16</span></div>
-          </div>
-          <div class="funnel-stage">
-            <div class="funnel-bar-wrap">
-              <div class="funnel-bar" id="f5" style="width:0%;background:#8b5cf6">
-                <span class="funnel-bar-label">Fechamento</span>
-              </div>
-            </div>
-            <div class="funnel-meta"><span>Contratos assinados</span><span class="funnel-count">12</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ACTIVITY -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Atividade Recente</div>
-        </div>
-        <div class="activity-list">
-          <div class="activity-item">
-            <div class="activity-dot" style="background:var(--teal)"></div>
-            <div class="activity-body">
-              <div class="activity-text">Contrato assinado — Apto 3 dorm, Mooca · <strong>R$680.000</strong></div>
-              <div class="activity-time">Hoje, 14h22</div>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot" style="background:var(--gold)"></div>
-            <div class="activity-body">
-              <div class="activity-text">Nova proposta enviada para Fernanda Oliveira — Casa Vila Prudente</div>
-              <div class="activity-time">Hoje, 11h05</div>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot" style="background:var(--blue)"></div>
-            <div class="activity-body">
-              <div class="activity-text">Visita agendada — Ana Paula · Apto Tatuapé · Sáb 10h</div>
-              <div class="activity-time">Ontem, 17h30</div>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot" style="background:var(--coral)"></div>
-            <div class="activity-body">
-              <div class="activity-text">Novo lead captado via Instagram — Marcos Souza</div>
-              <div class="activity-time">Ontem, 09h14</div>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot" style="background:var(--muted)"></div>
-            <div class="activity-body">
-              <div class="activity-text">Meta mensal atingida 94% — 12 de 13 fechamentos</div>
-              <div class="activity-time">26/04, 18h00</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- MAP + METAS -->
-    <div style="margin-top:28px">
-      <div class="chart-grid">
-
-        <!-- MAPA -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Mapa de Leads — São Paulo</div>
-            <span class="card-badge">Zona Leste · Foco</span>
-          </div>
-          <div class="map-wrap">
-            <svg class="map-bg" viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg">
-              <rect width="520" height="220" fill="#13161a"/>
-              <!-- grid lines -->
-              <g stroke="#1e2228" stroke-width="0.5">
-                <line x1="0" y1="44" x2="520" y2="44"/>
-                <line x1="0" y1="88" x2="520" y2="88"/>
-                <line x1="0" y1="132" x2="520" y2="132"/>
-                <line x1="0" y1="176" x2="520" y2="176"/>
-                <line x1="104" y1="0" x2="104" y2="220"/>
-                <line x1="208" y1="0" x2="208" y2="220"/>
-                <line x1="312" y1="0" x2="312" y2="220"/>
-                <line x1="416" y1="0" x2="416" y2="220"/>
-              </g>
-              <!-- SP map silhouette simplified blobs -->
-              <path d="M40,160 Q80,140 120,130 Q160,120 200,115 Q240,110 270,105 Q300,100 330,95 Q360,90 390,100 Q420,110 440,130 Q460,150 450,175 Q440,200 400,205 Q360,210 320,208 Q280,206 240,200 Q200,194 160,188 Q120,182 80,185 Q50,188 40,175 Z" fill="#1a1e24" stroke="#252a32" stroke-width="1"/>
-              <!-- roads -->
-              <path d="M40,140 Q180,130 300,120 Q400,112 480,118" fill="none" stroke="#252a32" stroke-width="1.5"/>
-              <path d="M200,60 Q210,100 215,140 Q218,170 220,200" fill="none" stroke="#252a32" stroke-width="1"/>
-              <path d="M280,80 Q290,110 295,150 Q298,175 300,210" fill="none" stroke="#252a32" stroke-width="1"/>
-              <!-- pins -->
-              <!-- Mooca -->
-              <g transform="translate(275,118)">
-                <circle r="10" fill="rgba(201,168,76,0.15)" stroke="none"><animate attributeName="r" values="10;16;10" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite"/></circle>
-                <circle r="5" fill="#c9a84c"/>
-                <text x="8" y="-8" fill="#c9a84c" font-size="9" font-family="DM Sans,sans-serif">Mooca · R$680k</text>
-              </g>
-              <!-- Tatuapé -->
-              <g transform="translate(330,100)">
-                <circle r="4" fill="#5b9cf6"/>
-                <text x="8" y="-6" fill="#5b9cf6" font-size="9" font-family="DM Sans,sans-serif">Tatuapé · R$410k</text>
-              </g>
-              <!-- Vila Prudente -->
-              <g transform="translate(240,148)">
-                <circle r="4" fill="#c9a84c"/>
-                <text x="8" y="-6" fill="#c9a84c" font-size="9" font-family="DM Sans,sans-serif">V. Prudente · R$490k</text>
-              </g>
-              <!-- Itaquera -->
-              <g transform="translate(390,120)">
-                <circle r="10" fill="rgba(244,116,90,0.15)" stroke="none"><animate attributeName="r" values="10;16;10" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/></circle>
-                <circle r="5" fill="#f4745a"/>
-                <text x="8" y="-8" fill="#f4745a" font-size="9" font-family="DM Sans,sans-serif">Itaquera · R$210k</text>
-              </g>
-              <!-- Centro -->
-              <g transform="translate(195,138)">
-                <circle r="4" fill="#2dd4a0"/>
-                <text x="8" y="-6" fill="#2dd4a0" font-size="9" font-family="DM Sans,sans-serif">Centro · R$320k</text>
-              </g>
-              <!-- label -->
-              <text x="14" y="16" fill="#3a4050" font-size="9" font-family="DM Sans,sans-serif" letter-spacing="0.1em">SÃO PAULO — SP</text>
-            </svg>
-          </div>
-          <div class="map-legend">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div>Lead quente (pulsando)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Em negociação</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Fechado</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Frio</div>
-          </div>
-        </div>
-
-        <!-- METAS -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Metas do Mês</div>
-            <span style="font-size:11px;color:var(--muted)">Abril 2025</span>
-          </div>
-
-          <div style="display:flex;flex-direction:column;gap:18px">
-
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:7px">
-                <span>Volume de Vendas</span><span style="color:var(--gold)">R$3,2M / R$3,5M</span>
-              </div>
-              <div style="height:8px;background:var(--surface2);border-radius:99px;overflow:hidden">
-                <div style="height:100%;width:91%;background:var(--gold);border-radius:99px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)"></div>
-              </div>
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">91% da meta — faltam R$300k</div>
-            </div>
-
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:7px">
-                <span>Imóveis Fechados</span><span style="color:var(--teal)">12 / 13</span>
-              </div>
-              <div style="height:8px;background:var(--surface2);border-radius:99px;overflow:hidden">
-                <div style="height:100%;width:92%;background:var(--teal);border-radius:99px;"></div>
-              </div>
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">92% — falta 1 fechamento</div>
-            </div>
-
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:7px">
-                <span>Novos Leads</span><span style="color:var(--blue)">47 / 50</span>
-              </div>
-              <div style="height:8px;background:var(--surface2);border-radius:99px;overflow:hidden">
-                <div style="height:100%;width:94%;background:var(--blue);border-radius:99px;"></div>
-              </div>
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">94% — faltam 3 leads</div>
-            </div>
-
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:7px">
-                <span>Taxa de Conversão</span><span style="color:var(--coral)">24% / 26%</span>
-              </div>
-              <div style="height:8px;background:var(--surface2);border-radius:99px;overflow:hidden">
-                <div style="height:100%;width:76%;background:var(--coral);border-radius:99px;"></div>
-              </div>
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">76% — 2pp abaixo da meta</div>
-            </div>
-
-            <div style="border-top:1px solid var(--border);padding-top:16px">
-              <div style="display:flex;align-items:center;justify-content:space-between">
-                <div>
-                  <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Score geral do mês</div>
-                  <div style="font-family:var(--font-serif);font-size:28px;color:var(--gold)">91<span style="font-size:14px;color:var(--muted)">/100</span></div>
-                </div>
-                <div style="width:64px;height:64px">
-                  <canvas id="scoreChart"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- GITHUB BANNER -->
-    <div class="gh-banner">
-      <div class="gh-banner-left">
-        <h3>✦ Projeto Open Source</h3>
-        <p>Dashboard construído com HTML, CSS e JS puro — sem frameworks. Ver código no GitHub.</p>
-      </div>
-      <div class="gh-btns">
-        <a class="gh-btn-outline" href="https://github.com/DEVMarlosGomes" target="_blank">👤 Perfil</a>
-        <a class="gh-btn" href="https://github.com/DEVMarlosGomes" target="_blank">⭐ Ver no GitHub</a>
-      </div>
-    </div>
-
-  </main>
+  </div>
+  <div class="gh-banner">
+    <div><h3 style="font-family:var(--font-serif);font-size:16px;margin-bottom:3px">✦ Projeto Open Source</h3><p style="font-size:12px;color:var(--muted2)">Dashboard construído com HTML, CSS e JS puro — sem frameworks.</p></div>
+    <div style="display:flex;gap:8px"><a class="gh-btn-outline" href="https://github.com/DEVMarlosGomes" target="_blank">👤 Perfil</a><a class="gh-btn" href="https://github.com/DEVMarlosGomes" target="_blank">⭐ GitHub</a></div>
+  </div>
 </div>
 
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: LEADS                               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-leads">
+  <div class="topbar">
+    <div><div class="topbar-title">Leads</div><div class="topbar-sub">47 contatos ativos na carteira</div></div>
+    <button class="action-btn" onclick="openModal('new')">+ Novo Lead</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+    <div class="kpi-card coral"><div class="kpi-icon">🔥</div><div class="kpi-label">Quentes</div><div class="kpi-value">11</div><span class="kpi-delta up">▲ +4 esta semana</span></div>
+    <div class="kpi-card gold"><div class="kpi-icon">🌡️</div><div class="kpi-label">Mornos</div><div class="kpi-value">18</div><span class="kpi-delta up">▲ +2</span></div>
+    <div class="kpi-card blue"><div class="kpi-icon">❄️</div><div class="kpi-label">Frios</div><div class="kpi-value">13</div><span class="kpi-delta down">▼ -1</span></div>
+    <div class="kpi-card teal"><div class="kpi-icon">✅</div><div class="kpi-label">Fechados</div><div class="kpi-value">5</div><span class="kpi-delta up">▲ este mês</span></div>
+  </div>
+  <div class="card">
+    <div class="toolbar">
+      <div class="search-box"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="Buscar lead por nome, bairro ou tipo..." oninput="filterLeads(this.value)" id="lead-search"/></div>
+      <button class="filter-btn active" onclick="setLeadFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setLeadFilter('quente',this)">🔥 Quentes</button>
+      <button class="filter-btn" onclick="setLeadFilter('morno',this)">🌡️ Mornos</button>
+      <button class="filter-btn" onclick="setLeadFilter('frio',this)">❄️ Frios</button>
+      <button class="filter-btn" onclick="setLeadFilter('fechado',this)">✅ Fechados</button>
+    </div>
+    <table class="data-table" id="leads-table">
+      <thead><tr>
+        <th>Nome</th><th>Tipo</th><th>Bairro</th><th>Valor</th><th>Origem</th><th>Status</th><th>Contato</th><th></th>
+      </tr></thead>
+      <tbody id="leads-tbody"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:20px" class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Leads por Origem</div></div>
+      <canvas id="originChart" height="180"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Temperatura ao Longo do Tempo</div></div>
+      <canvas id="tempChart" height="180"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: IMÓVEIS                             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-imoveis">
+  <div class="topbar">
+    <div><div class="topbar-title">Imóveis</div><div class="topbar-sub">32 imóveis na carteira ativa</div></div>
+    <button class="action-btn" onclick="showToast('✦ Funcionalidade disponível na versão Pro')">+ Cadastrar Imóvel</button>
+  </div>
+  <div class="toolbar">
+    <div class="search-box"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="Buscar por endereço, tipo ou valor..."/></div>
+    <button class="filter-btn active">Todos</button>
+    <button class="filter-btn">Apartamento</button>
+    <button class="filter-btn">Casa</button>
+    <button class="filter-btn">Comercial</button>
+    <button class="filter-btn">Terreno</button>
+    <button class="filter-btn">Disponível</button>
+    <button class="filter-btn">Reservado</button>
+  </div>
+  <div class="imovel-grid" id="imovel-grid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: FUNIL                               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-funil">
+  <div class="topbar">
+    <div><div class="topbar-title">Funil de Vendas</div><div class="topbar-sub">Visualize e gerencie cada etapa da sua jornada de vendas</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Funil de Conversão</div><span class="card-badge">84 contatos → 12 fechamentos</span></div>
+      <div class="funnel-big" id="funil-big"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Conversão por Etapa</div></div>
+      <canvas id="funnelChart" height="260"></canvas>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Tempo Médio por Etapa</div></div>
+      <canvas id="timeChart" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Taxa de Abandono</div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--muted2)">Prospecção → Qualificado</span><span style="color:var(--coral)">44% abandono</span></div><div class="prog-track"><div class="prog-fill" style="width:44%;background:var(--coral)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--muted2)">Qualificado → Visita</span><span style="color:var(--gold)">40% abandono</span></div><div class="prog-track"><div class="prog-fill" style="width:40%;background:var(--gold)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--muted2)">Visita → Proposta</span><span style="color:var(--gold)">43% abandono</span></div><div class="prog-track"><div class="prog-fill" style="width:43%;background:var(--gold)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--muted2)">Proposta → Fechamento</span><span style="color:var(--teal)">25% abandono</span></div><div class="prog-track"><div class="prog-fill" style="width:25%;background:var(--teal)"></div></div></div>
+        <div style="border-top:1px solid var(--border);padding-top:14px"><div style="font-size:12px;color:var(--muted2);margin-bottom:4px">Conversão geral (topo → fundo)</div><div style="font-family:var(--font-serif);font-size:26px;color:var(--teal)">14,3%<span style="font-size:13px;color:var(--muted);margin-left:6px">de eficiência</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: METAS                               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-metas">
+  <div class="topbar">
+    <div><div class="topbar-title">Metas & Ranking</div><div class="topbar-sub">Acompanhe suas metas mensais e compare seu desempenho</div></div>
+    <div class="period-tabs">
+      <button class="period-tab active">Abr 2025</button>
+      <button class="period-tab">Mar 2025</button>
+      <button class="period-tab">Fev 2025</button>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card gold"><div class="kpi-icon">🏆</div><div class="kpi-label">Score do Mês</div><div class="kpi-value">91/100</div><span class="kpi-delta up">▲ +7 vs mar</span></div>
+    <div class="kpi-card teal"><div class="kpi-icon">📈</div><div class="kpi-label">Metas Batidas</div><div class="kpi-value">3/4</div><span class="kpi-delta up">▲ bom desempenho</span></div>
+    <div class="kpi-card blue"><div class="kpi-icon">💰</div><div class="kpi-label">Comissão Est.</div><div class="kpi-value">R$96k</div><span class="kpi-delta up">▲ 3% do volume</span></div>
+    <div class="kpi-card coral"><div class="kpi-icon">📅</div><div class="kpi-label">Dias Restantes</div><div class="kpi-value">4</div><span class="kpi-delta down">▼ corre!</span></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Metas Detalhadas</div><span style="font-size:11px;color:var(--muted)">Abril 2025</span></div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px"><div><div style="font-size:13px;font-weight:500">Volume de Vendas</div><div style="font-size:11px;color:var(--muted)">Meta: R$3,5M</div></div><div style="font-family:var(--font-serif);font-size:22px;color:var(--gold)">R$3,2M</div></div><div class="prog-track" style="height:10px"><div class="prog-fill" style="width:91%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px"><span>91% concluído</span><span style="color:var(--gold)">faltam R$300k</span></div></div>
+        <div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px"><div><div style="font-size:13px;font-weight:500">Imóveis Fechados</div><div style="font-size:11px;color:var(--muted)">Meta: 13 imóveis</div></div><div style="font-family:var(--font-serif);font-size:22px;color:var(--teal)">12</div></div><div class="prog-track" style="height:10px"><div class="prog-fill" style="width:92%;background:linear-gradient(90deg,#1a9e78,var(--teal))"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px"><span>92% concluído</span><span style="color:var(--teal)">falta 1 imóvel</span></div></div>
+        <div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px"><div><div style="font-size:13px;font-weight:500">Novos Leads</div><div style="font-size:11px;color:var(--muted)">Meta: 50 leads</div></div><div style="font-family:var(--font-serif);font-size:22px;color:var(--blue)">47</div></div><div class="prog-track" style="height:10px"><div class="prog-fill" style="width:94%;background:linear-gradient(90deg,#2d6fd4,var(--blue))"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px"><span>94% concluído</span><span style="color:var(--blue)">faltam 3 leads</span></div></div>
+        <div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px"><div><div style="font-size:13px;font-weight:500">Taxa de Conversão</div><div style="font-size:11px;color:var(--muted)">Meta: 26%</div></div><div style="font-family:var(--font-serif);font-size:22px;color:var(--coral)">24%</div></div><div class="prog-track" style="height:10px"><div class="prog-fill" style="width:76%;background:linear-gradient(90deg,#b84d35,var(--coral))"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px"><span>76% da meta</span><span style="color:var(--coral)">2pp abaixo</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Evolução Mensal</div></div>
+      <canvas id="metasChart" height="200"></canvas>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Ranking da Equipe</div><span class="card-badge">Imobiliária · Abr 2025</span></div>
+      <div id="ranking-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Histórico de Score</div></div>
+      <canvas id="scoreHistChart" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: RELATÓRIOS                          -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-relatorios">
+  <div class="topbar">
+    <div><div class="topbar-title">Relatórios</div><div class="topbar-sub">Análise completa da performance comercial</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="export-btn" onclick="showToast('📄 Exportando PDF...')">📄 PDF</button>
+      <button class="export-btn" onclick="showToast('📊 Exportando Excel...')">📊 Excel</button>
+    </div>
+  </div>
+  <div class="report-kpi-grid">
+    <div class="kpi-card gold"><div class="kpi-icon">💰</div><div class="kpi-label">Receita Total 2025</div><div class="kpi-value">R$9,8M</div><span class="kpi-delta up">▲ +22% vs 2024</span></div>
+    <div class="kpi-card teal"><div class="kpi-icon">🏠</div><div class="kpi-label">Imóveis Vendidos 2025</div><div class="kpi-value">38</div><span class="kpi-delta up">▲ +8 vs 2024</span></div>
+    <div class="kpi-card blue"><div class="kpi-icon">💼</div><div class="kpi-label">Comissão Total 2025</div><div class="kpi-value">R$294k</div><span class="kpi-delta up">▲ 3% do volume</span></div>
+  </div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Receita Mensal 2025</div></div>
+      <canvas id="relChart1" height="140"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Mix de Produtos</div></div>
+      <canvas id="relChart2" height="200"></canvas>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px" id="mix-legend"></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Comparativo Anual</div></div>
+      <canvas id="relChart3" height="180"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Bairros com Maior Volume</div></div>
+      <canvas id="relChart4" height="180"></canvas>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <div class="card-header"><div class="card-title">Histórico de Transações</div><span style="font-size:11px;color:var(--muted)">Últimas 10 vendas</span></div>
+    <table class="data-table">
+      <thead><tr><th>Data</th><th>Imóvel</th><th>Comprador</th><th>Valor</th><th>Comissão</th><th>Status</th></tr></thead>
+      <tbody id="trans-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: PERFIL                              -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-perfil">
+  <div class="topbar">
+    <div><div class="topbar-title">Meu Perfil</div><div class="topbar-sub">Gerencie suas informações e configurações</div></div>
+    <button class="action-btn" onclick="showToast('✅ Perfil salvo com sucesso!')">Salvar alterações</button>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Informações Pessoais</div></div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--gold));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:28px;color:#0a0b0d;flex-shrink:0">M</div>
+        <div><div style="font-family:var(--font-serif);font-size:20px;margin-bottom:2px">Marlos Gomes</div><div style="font-size:12px;color:var(--muted)">Corretor · DEV · SENAI Mooca</div><div style="margin-top:8px;display:flex;gap:6px"><span class="badge badge-quente">CRECI ativo</span><span class="badge badge-blue">Fullstack Dev</span></div></div>
+      </div>
+      <div class="modal-field"><label>Nome completo</label><input type="text" value="Marlos Gomes"/></div>
+      <div class="modal-row">
+        <div class="modal-field"><label>CRECI</label><input type="text" value="SP-123456"/></div>
+        <div class="modal-field"><label>Telefone</label><input type="text" value="(11) 99999-0000"/></div>
+      </div>
+      <div class="modal-field"><label>E-mail</label><input type="text" value="marlos@imobvip.com.br"/></div>
+      <div class="modal-field"><label>LinkedIn</label><input type="text" value="linkedin.com/in/marlos-gomes-b77952320"/></div>
+      <div class="modal-field"><label>Instagram</label><input type="text" value="@_corretormarlosgomes"/></div>
+      <div class="modal-field"><label>Bio / Apresentação</label><textarea rows="3">Desenvolvedor Fullstack e Corretor de Imóveis especializado em marketing imobiliário. Trabalho com a @imobvip_ e @vivantimobiliaria.</textarea></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Estatísticas de Carreira</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:var(--surface2);border-radius:var(--r);padding:14px;text-align:center"><div style="font-family:var(--font-serif);font-size:24px;color:var(--gold)">138</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Imóveis vendidos</div></div>
+          <div style="background:var(--surface2);border-radius:var(--r);padding:14px;text-align:center"><div style="font-family:var(--font-serif);font-size:24px;color:var(--teal)">R$42M</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Volume total</div></div>
+          <div style="background:var(--surface2);border-radius:var(--r);padding:14px;text-align:center"><div style="font-family:var(--font-serif);font-size:24px;color:var(--blue)">4,9★</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Avaliação clientes</div></div>
+          <div style="background:var(--surface2);border-radius:var(--r);padding:14px;text-align:center"><div style="font-family:var(--font-serif);font-size:24px;color:var(--purple)">3 anos</div><div style="font-size:11px;color:var(--muted);margin-top:2px">de experiência</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Links & Portfólio</div></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="https://github.com/DEVMarlosGomes" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;transition:background 0.15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'"><span style="font-size:18px">💻</span><div><div style="font-weight:500">GitHub</div><div style="font-size:11px;color:var(--muted)">DEVMarlosGomes</div></div><span style="margin-left:auto;color:var(--muted)">↗</span></a>
+          <a href="https://www.linkedin.com/in/marlos-gomes-b77952320/" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;transition:background 0.15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'"><span style="font-size:18px">💼</span><div><div style="font-weight:500">LinkedIn</div><div style="font-size:11px;color:var(--muted)">marlos-gomes-b77952320</div></div><span style="margin-left:auto;color:var(--muted)">↗</span></a>
+          <a href="https://www.instagram.com/_corretormarlosgomes" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;transition:background 0.15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'"><span style="font-size:18px">📸</span><div><div style="font-weight:500">Instagram</div><div style="font-size:11px;color:var(--muted)">@_corretormarlosgomes</div></div><span style="margin-left:auto;color:var(--muted)">↗</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modal-title">Novo Lead</div>
+    <div class="modal-sub">Preencha os dados do contato</div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Nome completo</label><input type="text" placeholder="Ex: Carlos Henrique"/></div>
+      <div class="modal-field"><label>Telefone</label><input type="text" placeholder="(11) 9xxxx-xxxx"/></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Tipo de imóvel</label><select><option>Apartamento</option><option>Casa</option><option>Comercial</option><option>Terreno</option></select></div>
+      <div class="modal-field"><label>Bairro de interesse</label><input type="text" placeholder="Ex: Mooca"/></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Valor estimado</label><input type="text" placeholder="Ex: R$ 500.000"/></div>
+      <div class="modal-field"><label>Origem do lead</label><select><option>Instagram</option><option>Indicação</option><option>Portal Imobiliário</option><option>WhatsApp</option><option>LinkedIn</option><option>Evento</option></select></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Status</label><select><option>Quente</option><option>Morno</option><option>Frio</option></select></div>
+      <div class="modal-field"><label>Prazo de compra</label><select><option>Imediato (até 30 dias)</option><option>Curto (1-3 meses)</option><option>Médio (3-6 meses)</option><option>Longo (6+ meses)</option></select></div>
+    </div>
+    <div class="modal-field"><label>Observações</label><textarea rows="3" placeholder="Preferências, restrições, situação financeira..."></textarea></div>
+    <div class="modal-actions">
+      <button class="action-btn" onclick="saveLead()">Salvar Lead</button>
+      <button class="filter-btn" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-/* ─── CHART.JS GLOBAL CONFIG ──────────── */
-Chart.defaults.color = '#6b6960';
-Chart.defaults.font.family = "'DM Sans', sans-serif";
-Chart.defaults.font.size = 11;
+/* ════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════ */
+const leads = [
+  {id:1,nome:'Carlos Henrique M.',tipo:'Apartamento',bairro:'Mooca',valor:'R$680.000',origem:'Instagram',status:'quente',contato:'(11) 99834-2201',data:'24/04'},
+  {id:2,nome:'Fernanda Oliveira',tipo:'Casa',bairro:'Vila Prudente',valor:'R$490.000',origem:'Indicação',status:'morno',contato:'(11) 97612-4433',data:'23/04'},
+  {id:3,nome:'Roberto Almeida',tipo:'Comercial',bairro:'Centro',valor:'R$320.000',origem:'Portal',status:'fechado',contato:'(11) 98801-3311',data:'20/04'},
+  {id:4,nome:'Ana Paula Costa',tipo:'Apartamento',bairro:'Tatuapé',valor:'R$410.000',origem:'WhatsApp',status:'frio',contato:'(11) 97700-8822',data:'19/04'},
+  {id:5,nome:'Marcos Souza',tipo:'Terreno',bairro:'Itaquera',valor:'R$210.000',origem:'Instagram',status:'quente',contato:'(11) 99223-7766',data:'22/04'},
+  {id:6,nome:'Juliana Ferreira',tipo:'Apartamento',bairro:'Belém',valor:'R$380.000',origem:'Indicação',status:'morno',contato:'(11) 98741-2200',data:'21/04'},
+  {id:7,nome:'Pedro Lemos',tipo:'Casa',bairro:'Penha',valor:'R$540.000',origem:'LinkedIn',status:'quente',contato:'(11) 97831-5544',data:'20/04'},
+  {id:8,nome:'Cláudia Mendes',tipo:'Apartamento',bairro:'Água Rasa',valor:'R$295.000',origem:'Portal',status:'frio',contato:'(11) 96611-9900',data:'18/04'},
+  {id:9,nome:'Rafael Torres',tipo:'Comercial',bairro:'Mooca',valor:'R$580.000',origem:'Evento',status:'morno',contato:'(11) 99002-1133',data:'17/04'},
+  {id:10,nome:'Beatriz Santos',tipo:'Casa',bairro:'Aricanduva',valor:'R$460.000',origem:'Instagram',status:'quente',contato:'(11) 98230-4455',data:'16/04'},
+];
 
-/* ─── SALES LINE CHART ────────────────── */
-const salesCtx = document.getElementById('salesChart').getContext('2d');
+const imoveis = [
+  {tipo:'Apartamento',emoji:'🏢',preco:'R$ 680.000',end:'Rua das Acácias, 234 · Mooca',quartos:3,banheiros:2,area:98,status:'Disponível',cor:'var(--teal-dim)'},
+  {tipo:'Casa',emoji:'🏡',preco:'R$ 890.000',end:'Av. Aricanduva, 1200 · Penha',quartos:4,banheiros:3,area:180,status:'Reservado',cor:'var(--gold-glow)'},
+  {tipo:'Apartamento',emoji:'🏢',preco:'R$ 295.000',end:'R. Javari, 88 · Água Rasa',quartos:2,banheiros:1,area:62,status:'Disponível',cor:'var(--teal-dim)'},
+  {tipo:'Comercial',emoji:'🏬',preco:'R$ 320.000',end:'Av. Paulista, 900 · Bela Vista',quartos:0,banheiros:2,area:80,status:'Disponível',cor:'var(--teal-dim)'},
+  {tipo:'Terreno',emoji:'🟫',preco:'R$ 210.000',end:'R. Itaquera, 45 · Itaquera',quartos:0,banheiros:0,area:300,status:'Disponível',cor:'var(--teal-dim)'},
+  {tipo:'Apartamento',emoji:'🏢',preco:'R$ 410.000',end:'R. Tuiuti, 312 · Tatuapé',quartos:2,banheiros:2,area:74,status:'Reservado',cor:'var(--gold-glow)'},
+  {tipo:'Casa',emoji:'🏡',preco:'R$ 490.000',end:'R. Bresser, 789 · Brás',quartos:3,banheiros:2,area:120,status:'Disponível',cor:'var(--teal-dim)'},
+  {tipo:'Comercial',emoji:'🏬',preco:'R$ 580.000',end:'R. do Gasômetro, 22 · Mooca',quartos:0,banheiros:1,area:110,status:'Disponível',cor:'var(--teal-dim)'},
+];
 
-const gradient = salesCtx.createLinearGradient(0, 0, 0, 200);
-gradient.addColorStop(0, 'rgba(201,168,76,0.28)');
-gradient.addColorStop(1, 'rgba(201,168,76,0)');
+const transacoes = [
+  {data:'24/04/2025',imovel:'Apto 3dorm · Mooca',comprador:'Carlos H. M.',valor:'R$680.000',comissao:'R$20.400',status:'fechado'},
+  {data:'18/04/2025',imovel:'Casa 4dorm · Penha',comprador:'Pedro Lemos',valor:'R$890.000',comissao:'R$26.700',status:'fechado'},
+  {data:'15/04/2025',imovel:'Apto 2dorm · Tatuapé',comprador:'Juliana Ferreira',valor:'R$380.000',comissao:'R$11.400',status:'fechado'},
+  {data:'10/04/2025',imovel:'Comercial · Centro',comprador:'Roberto A.',valor:'R$320.000',comissao:'R$9.600',status:'fechado'},
+  {data:'05/04/2025',imovel:'Casa · V.Prudente',comprador:'Fernanda O.',valor:'R$490.000',comissao:'R$14.700',status:'fechado'},
+  {data:'28/03/2025',imovel:'Terreno · Itaquera',comprador:'Marcos S.',valor:'R$210.000',comissao:'R$6.300',status:'fechado'},
+  {data:'22/03/2025',imovel:'Apto 2dorm · Belém',comprador:'Cláudia M.',valor:'R$295.000',comissao:'R$8.850',status:'fechado'},
+  {data:'17/03/2025',imovel:'Comercial · Mooca',comprador:'Rafael T.',valor:'R$580.000',comissao:'R$17.400',status:'fechado'},
+  {data:'10/03/2025',imovel:'Casa · Aricanduva',comprador:'Beatriz S.',valor:'R$460.000',comissao:'R$13.800',status:'fechado'},
+  {data:'03/03/2025',imovel:'Apto 3dorm · Água Rasa',comprador:'Ana Paula C.',valor:'R$410.000',comissao:'R$12.300',status:'fechado'},
+];
 
+const ranking = [
+  {nome:'Marlos Gomes',role:'Corretor Sênior',volume:'R$3,2M',fechamentos:12,score:91,cor:'var(--gold)'},
+  {nome:'Sandra Lima',role:'Corretora Pleno',volume:'R$2,8M',fechamentos:10,score:84,cor:'var(--blue)'},
+  {nome:'Diego Rocha',role:'Corretor Pleno',volume:'R$2,1M',fechamentos:8,score:76,cor:'var(--teal)'},
+  {nome:'Patricia Nunes',role:'Corretora Júnior',volume:'R$1,6M',fechamentos:6,score:68,cor:'var(--coral)'},
+  {nome:'Lucas Alves',role:'Corretor Júnior',volume:'R$980k',fechamentos:4,score:55,cor:'var(--muted2)'},
+];
+
+/* ════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════ */
+let chartsInitialized = {};
+const hasCharts = typeof window.Chart !== 'undefined';
+
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+  if (!chartsInitialized[page]) { initPage(page); chartsInitialized[page]=true; }
+}
+
+function initPage(page) {
+  if (page==='leads') initLeadsPage();
+  if (page==='imoveis') initImoveisPage();
+  if (page==='funil') initFunilPage();
+  if (page==='metas') initMetasPage();
+  if (page==='relatorios') initRelatoriosPage();
+}
+
+/* ════════════════════════════════════════════
+   MODAL
+════════════════════════════════════════════ */
+function openModal(type) {
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target===document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+function saveLead() {
+  closeModal();
+  showToast('✅ Lead adicionado com sucesso!');
+}
+
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ════════════════════════════════════════════
+   CHART HELPERS
+════════════════════════════════════════════ */
+const TT = (bg,bc) => ({
+  backgroundColor:bg||'#181b1f',
+  borderColor:bc||'rgba(255,255,255,0.1)',
+  borderWidth:1,
+  titleColor:'#e8e6e0',
+  bodyColor:'#9a9690',
+  padding:10,
+});
+const GRID = { color:'rgba(255,255,255,0.04)' };
+const BORDER = { display:false };
+
+/* ════════════════════════════════════════════
+   PAINEL CHARTS
+════════════════════════════════════════════ */
 const salesData = {
-  '7d':  { labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'], data:[120,0,340,0,680,210,0] },
-  '30d': { labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], data:[1800,2100,1650,3200,2800,2400,1900,2600,3000,2200,2700,3100] },
-  '90d': { labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], data:[1200,1800,2100,3200,2800,2400,2900,3300,2600,2200,3100,3500] },
-  '12m': { labels:['2024 T1','2024 T2','2024 T3','2024 T4','2025 T1'], data:[5200,7800,8100,9400,9800] }
+  '7d': {labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],data:[120,0,340,0,680,210,0]},
+  '30d':{labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],data:[1800,2100,1650,3200,2800,2400,1900,2600,3000,2200,2700,3100]},
+  '90d':{labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],data:[1200,1800,2100,3200,2800,2400,2900,3300,2600,2200,3100,3500]},
+  '12m':{labels:['2024 T1','2024 T2','2024 T3','2024 T4','2025 T1'],data:[5200,7800,8100,9400,9800]},
 };
 
-let salesChart = new Chart(salesCtx, {
-  type: 'line',
-  data: {
-    labels: salesData['30d'].labels,
-    datasets: [{
-      data: salesData['30d'].data,
-      borderColor: '#c9a84c',
-      borderWidth: 2,
-      fill: true,
-      backgroundColor: gradient,
-      tension: 0.45,
-      pointRadius: 4,
-      pointBackgroundColor: '#c9a84c',
-      pointBorderColor: '#111316',
-      pointBorderWidth: 2,
-      pointHoverRadius: 6,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#181b1f',
-        borderColor: 'rgba(255,255,255,0.1)',
-        borderWidth: 1,
-        titleColor: '#e8e6e0',
-        bodyColor: '#c9a84c',
-        callbacks: {
-          label: ctx => ' R$ ' + (ctx.raw >= 1000 ? (ctx.raw/1000).toFixed(1)+'k' : ctx.raw) + 'k'
-        }
-      }
-    },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } },
-      y: {
-        grid: { color: 'rgba(255,255,255,0.04)' },
-        border: { display: false },
-        ticks: { callback: v => 'R$'+(v/1000).toFixed(0)+'k' }
-      }
-    }
-  }
-});
+let salesChart = null;
 
-/* ─── DONUT CHART ─────────────────────── */
-new Chart(document.getElementById('typeChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Apartamento','Casa','Comercial','Terreno'],
-    datasets: [{
-      data: [45, 28, 18, 9],
-      backgroundColor: ['#c9a84c','#2dd4a0','#5b9cf6','#f4745a'],
-      borderColor: '#111316',
-      borderWidth: 3,
-      hoverOffset: 6
-    }]
-  },
-  options: {
-    responsive: true,
-    cutout: '68%',
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#181b1f',
-        borderColor: 'rgba(255,255,255,0.1)',
-        borderWidth: 1,
-        titleColor: '#e8e6e0',
-        bodyColor: '#9a9690',
-        callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + '%' }
-      }
-    }
-  }
-});
+if (hasCharts) {
+  Chart.defaults.color = '#6b6960';
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+  Chart.defaults.font.size = 11;
 
-/* ─── SCORE GAUGE ─────────────────────── */
-new Chart(document.getElementById('scoreChart'), {
-  type: 'doughnut',
-  data: {
-    datasets: [{
-      data: [91, 9],
-      backgroundColor: ['#c9a84c', '#181b1f'],
-      borderColor: 'transparent',
-      borderWidth: 0,
-    }]
-  },
-  options: {
-    responsive: true,
-    cutout: '72%',
-    plugins: { legend: { display: false }, tooltip: { enabled: false } }
-  }
-});
+  const salesCtx = document.getElementById('salesChart').getContext('2d');
+  const grad = salesCtx.createLinearGradient(0,0,0,200);
+  grad.addColorStop(0,'rgba(201,168,76,0.28)');
+  grad.addColorStop(1,'rgba(201,168,76,0)');
 
-/* ─── PERIOD SWITCH ───────────────────── */
-function setPeriod(p, btn) {
-  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  salesChart = new Chart(salesCtx,{
+    type:'line',
+    data:{labels:salesData['30d'].labels,datasets:[{data:salesData['30d'].data,borderColor:'#c9a84c',borderWidth:2,fill:true,backgroundColor:grad,tension:0.45,pointRadius:4,pointBackgroundColor:'#c9a84c',pointBorderColor:'#111316',pointBorderWidth:2,pointHoverRadius:6}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>' R$ '+(c.raw>=1000?(c.raw/1000).toFixed(1)+'k':c.raw)+'k'}}},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER,ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}
+  });
+
+  new Chart(document.getElementById('typeChart'),{
+    type:'doughnut',
+    data:{labels:['Apartamento','Casa','Comercial','Terreno'],datasets:[{data:[45,28,18,9],backgroundColor:['#c9a84c','#2dd4a0','#5b9cf6','#f4745a'],borderColor:'#111316',borderWidth:3,hoverOffset:6}]},
+    options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>' '+c.label+': '+c.raw+'%'}}}}
+  });
+
+  new Chart(document.getElementById('scoreChart'),{
+    type:'doughnut',
+    data:{datasets:[{data:[91,9],backgroundColor:['#c9a84c','#181b1f'],borderColor:'transparent',borderWidth:0}]},
+    options:{responsive:true,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}
+  });
+}
+
+function setPeriod(p,btn) {
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  const d = salesData[p];
-  salesChart.data.labels = d.labels;
-  salesChart.data.datasets[0].data = d.data;
+  if (!salesChart) return;
+  salesChart.data.labels=salesData[p].labels;
+  salesChart.data.datasets[0].data=salesData[p].data;
   salesChart.update('active');
 }
 
-/* ─── FUNNEL ANIMATION ────────────────── */
-setTimeout(() => {
-  const targets = [
-    { id:'f1', w:'100%' },
-    { id:'f2', w:'56%' },
-    { id:'f3', w:'33%' },
-    { id:'f4', w:'19%' },
-    { id:'f5', w:'14%' },
+setTimeout(()=>{
+  [{id:'pf1',w:'100%'},{id:'pf2',w:'56%'},{id:'pf3',w:'33%'},{id:'pf4',w:'19%'},{id:'pf5',w:'14%'}]
+  .forEach(t=>document.getElementById(t.id).style.width=t.w);
+},500);
+
+/* ════════════════════════════════════════════
+   LEADS PAGE
+════════════════════════════════════════════ */
+let currentFilter = 'todos';
+
+function initLeadsPage() {
+  renderLeads(leads);
+  if (!hasCharts) return;
+
+  new Chart(document.getElementById('originChart'),{
+    type:'bar',
+    data:{labels:['Instagram','Indicação','Portal','WhatsApp','LinkedIn','Evento'],datasets:[{data:[18,12,8,5,3,1],backgroundColor:['#c9a84c','#2dd4a0','#5b9cf6','#f4745a','#a78bfa','#9a9690'],borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:TT()},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER,ticks:{stepSize:4}}}}
+  });
+
+  new Chart(document.getElementById('tempChart'),{
+    type:'line',
+    data:{
+      labels:['Jan','Fev','Mar','Abr'],
+      datasets:[
+        {label:'Quentes',data:[6,9,8,11],borderColor:'#f4745a',backgroundColor:'rgba(244,116,90,0.1)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#f4745a'},
+        {label:'Mornos',data:[10,14,16,18],borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.05)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#c9a84c'},
+        {label:'Frios',data:[15,12,14,13],borderColor:'#5b9cf6',backgroundColor:'rgba(91,156,246,0.05)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#5b9cf6'},
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{labels:{color:'#9a9690',boxWidth:10,boxHeight:10}},tooltip:TT()},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER}}}
+  });
+}
+
+function renderLeads(data) {
+  const tbody = document.getElementById('leads-tbody');
+  const statusMap = {quente:'badge-quente',morno:'badge-morno',frio:'badge-frio',fechado:'badge-fechado'};
+  const labelMap = {quente:'🔥 Quente',morno:'🌡️ Morno',frio:'❄️ Frio',fechado:'✅ Fechado'};
+  tbody.innerHTML = data.map(l=>`
+    <tr style="cursor:pointer" onclick="showToast('📞 Abrindo ficha de ${l.nome}...')">
+      <td><strong>${l.nome}</strong></td>
+      <td>${l.tipo}</td>
+      <td>${l.bairro}</td>
+      <td style="color:var(--gold);font-weight:500">${l.valor}</td>
+      <td><span class="badge badge-gray">${l.origem}</span></td>
+      <td><span class="badge ${statusMap[l.status]}">${labelMap[l.status]}</span></td>
+      <td style="color:var(--muted2)">${l.contato}</td>
+      <td><button class="filter-btn" style="padding:4px 10px;font-size:11px" onclick="event.stopPropagation();showToast('📞 Ligando para ${l.nome}...')">Contatar</button></td>
+    </tr>`).join('');
+}
+
+function filterLeads(q) {
+  const f = q.toLowerCase();
+  const filtered = leads.filter(l=>
+    (currentFilter==='todos'||l.status===currentFilter) &&
+    (l.nome.toLowerCase().includes(f)||l.bairro.toLowerCase().includes(f)||l.tipo.toLowerCase().includes(f))
+  );
+  renderLeads(filtered);
+}
+
+function setLeadFilter(status, btn) {
+  document.querySelectorAll('.toolbar .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = status;
+  filterLeads(document.getElementById('lead-search').value);
+}
+
+/* ════════════════════════════════════════════
+   IMÓVEIS PAGE
+════════════════════════════════════════════ */
+function initImoveisPage() {
+  const grid = document.getElementById('imovel-grid');
+  grid.innerHTML = imoveis.map(im=>`
+    <div class="imovel-card" onclick="showToast('🏠 Abrindo ficha: ${im.end}')">
+      <div class="imovel-img" style="background:${im.cor}">
+        <span style="font-size:52px">${im.emoji}</span>
+        <span class="imovel-status-tag ${im.status==='Disponível'?'badge-fechado':'badge-morno'}">${im.status}</span>
+      </div>
+      <div class="imovel-body">
+        <div class="imovel-price">${im.preco}</div>
+        <div class="imovel-addr">${im.end}</div>
+        <div class="imovel-attrs">
+          ${im.quartos>0?`<span class="imovel-attr">🛏 ${im.quartos}</span>`:''}
+          ${im.banheiros>0?`<span class="imovel-attr">🚿 ${im.banheiros}</span>`:''}
+          <span class="imovel-attr">📐 ${im.area}m²</span>
+          <span class="imovel-attr badge badge-gray" style="margin-left:auto">${im.tipo}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════════
+   FUNIL PAGE
+════════════════════════════════════════════ */
+function initFunilPage() {
+  const stages = [
+    {label:'Prospecção',count:84,color:'#c9a84c',conv:null},
+    {label:'Qualificados',count:47,color:'#5b9cf6',conv:'56%'},
+    {label:'Visitas',count:28,color:'#2dd4a0',conv:'60%'},
+    {label:'Proposta',count:16,color:'#f4745a',conv:'57%'},
+    {label:'Fechamento',count:12,color:'#a78bfa',conv:'75%'},
   ];
-  targets.forEach(t => {
-    document.getElementById(t.id).style.width = t.w;
-  });
-}, 600);
+  const maxCount = 84;
+  const container = document.getElementById('funil-big');
+  container.innerHTML = stages.map((s,i)=>`
+    <div class="funnel-big-stage">
+      <div class="funnel-big-bar-wrap" onclick="showToast('📋 ${s.label}: ${s.count} leads')">
+        <div class="funnel-big-bar" id="fb${i}" style="width:0%;background:${s.color}">
+          <span class="funnel-big-label">${s.label}</span>
+          <span class="funnel-big-count">${s.count} leads</span>
+        </div>
+      </div>
+      <div class="funnel-big-meta">
+        <span>${s.conv?`Conversão da etapa anterior: <span class="funnel-conv">${s.conv}</span>`:''}</span>
+        <span style="color:var(--text);font-weight:500">${s.count}</span>
+      </div>
+    </div>`).join('');
 
-/* ─── NAV ITEMS ───────────────────────── */
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-  });
-});
+  setTimeout(()=>{
+    stages.forEach((s,i)=>{
+      document.getElementById('fb'+i).style.width = (s.count/maxCount*100)+'%';
+    });
+  },300);
 
-/* ─── GREETING BY TIME ────────────────── */
+  if (!hasCharts) return;
+
+  new Chart(document.getElementById('funnelChart'),{
+    type:'bar',
+    data:{labels:stages.map(s=>s.label),datasets:[{data:stages.map(s=>s.count),backgroundColor:stages.map(s=>s.color),borderRadius:6,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>` ${c.raw} leads`}}},scales:{x:{grid:GRID,border:BORDER},y:{grid:{display:false},border:BORDER}}}
+  });
+
+  new Chart(document.getElementById('timeChart'),{
+    type:'bar',
+    data:{labels:['Prospecção','Qualif.','Visita','Proposta','Fechamento'],datasets:[{label:'Dias médios',data:[2,5,8,14,7],backgroundColor:['#c9a84c','#5b9cf6','#2dd4a0','#f4745a','#a78bfa'],borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>` ${c.raw} dias em média`}}},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER,ticks:{callback:v=>v+'d'}}}}
+  });
+}
+
+/* ════════════════════════════════════════════
+   METAS PAGE
+════════════════════════════════════════════ */
+function initMetasPage() {
+  const rankList = document.getElementById('ranking-list');
+  rankList.innerHTML = ranking.map((r,i)=>`
+    <div class="ranking-row">
+      <div class="rank-num ${i===0?'gold':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="rank-avatar" style="background:${r.cor}22;color:${r.cor}">${r.nome.split(' ').map(n=>n[0]).slice(0,2).join('')}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:${i===0?'500':'400'};color:${i===0?'var(--gold)':'var(--text)'}">${r.nome}</div>
+        <div style="font-size:11px;color:var(--muted)">${r.role} · ${r.fechamentos} fechamentos</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:${r.cor};font-weight:500">${r.volume}</div>
+        <div style="font-size:11px;color:var(--muted)">Score ${r.score}</div>
+      </div>
+    </div>`).join('');
+
+  if (!hasCharts) return;
+
+  new Chart(document.getElementById('metasChart'),{
+    type:'line',
+    data:{
+      labels:['Jan','Fev','Mar','Abr'],
+      datasets:[
+        {label:'Volume (R$k)',data:[1800,2100,2600,3200],borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.1)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#c9a84c',yAxisID:'y'},
+        {label:'Fechamentos',data:[7,9,10,12],borderColor:'#2dd4a0',backgroundColor:'rgba(45,212,160,0.1)',fill:false,tension:0.4,pointRadius:4,pointBackgroundColor:'#2dd4a0',yAxisID:'y1'},
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{labels:{color:'#9a9690',boxWidth:10}},tooltip:TT()},scales:{
+      x:{grid:GRID,border:BORDER},
+      y:{grid:GRID,border:BORDER,position:'left',ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}},
+      y1:{grid:{display:false},border:BORDER,position:'right',ticks:{callback:v=>v+' imóv.'}}
+    }}
+  });
+
+  new Chart(document.getElementById('scoreHistChart'),{
+    type:'line',
+    data:{
+      labels:['Out','Nov','Dez','Jan','Fev','Mar','Abr'],
+      datasets:[{data:[72,68,80,78,84,84,91],borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.12)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#c9a84c',pointBorderColor:'#111316',pointBorderWidth:2}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>` Score: ${c.raw}/100`}}},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER,min:60,max:100}}}
+  });
+}
+
+/* ════════════════════════════════════════════
+   RELATÓRIOS PAGE
+════════════════════════════════════════════ */
+function initRelatoriosPage() {
+  const mixData = [{label:'Apartamento',v:45,c:'#c9a84c'},{label:'Casa',v:28,c:'#2dd4a0'},{label:'Comercial',v:18,c:'#5b9cf6'},{label:'Terreno',v:9,c:'#f4745a'}];
+  document.getElementById('mix-legend').innerHTML = mixData.map(m=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
+      <span style="display:flex;align-items:center;gap:6px;color:var(--muted2)"><span style="width:8px;height:8px;border-radius:50%;background:${m.c};display:inline-block"></span>${m.label}</span>
+      <span style="color:var(--text);font-weight:500">${m.v}%</span>
+    </div>`).join('');
+
+  document.getElementById('trans-tbody').innerHTML = transacoes.map(t=>`
+    <tr>
+      <td style="color:var(--muted2)">${t.data}</td>
+      <td>${t.imovel}</td>
+      <td>${t.comprador}</td>
+      <td style="color:var(--gold);font-weight:500">${t.valor}</td>
+      <td style="color:var(--teal)">${t.comissao}</td>
+      <td><span class="badge badge-fechado">✅ Fechado</span></td>
+    </tr>`).join('');
+
+  if (!hasCharts) return;
+
+  const g1ctx = document.getElementById('relChart1').getContext('2d');
+  const g1 = g1ctx.createLinearGradient(0,0,0,180);
+  g1.addColorStop(0,'rgba(201,168,76,0.25)');
+  g1.addColorStop(1,'rgba(201,168,76,0)');
+
+  new Chart(g1ctx,{
+    type:'line',
+    data:{labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],datasets:[
+      {label:'2025',data:[1800,2100,2600,3200,null,null,null,null,null,null,null,null],borderColor:'#c9a84c',backgroundColor:g1,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#c9a84c'},
+      {label:'2024',data:[1400,1600,1900,2100,2400,2200,1900,2300,2500,1900,2200,2800],borderColor:'#444',borderDash:[4,4],backgroundColor:'transparent',tension:0.4,pointRadius:3,pointBackgroundColor:'#444'}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#9a9690',boxWidth:10}},tooltip:TT()},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER,ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}
+  });
+
+  new Chart(document.getElementById('relChart2'),{
+    type:'doughnut',
+    data:{labels:mixData.map(m=>m.label),datasets:[{data:mixData.map(m=>m.v),backgroundColor:mixData.map(m=>m.c),borderColor:'#111316',borderWidth:3,hoverOffset:6}]},
+    options:{responsive:true,cutout:'65%',plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>` ${c.label}: ${c.raw}%`}}}}
+  });
+
+  new Chart(document.getElementById('relChart3'),{
+    type:'bar',
+    data:{
+      labels:['Jan','Fev','Mar','Abr'],
+      datasets:[
+        {label:'2025',data:[1800,2100,2600,3200],backgroundColor:'#c9a84c',borderRadius:4},
+        {label:'2024',data:[1400,1600,1900,2100],backgroundColor:'rgba(255,255,255,0.08)',borderRadius:4},
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{labels:{color:'#9a9690',boxWidth:10}},tooltip:TT()},scales:{x:{grid:GRID,border:BORDER},y:{grid:GRID,border:BORDER,ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}
+  });
+
+  new Chart(document.getElementById('relChart4'),{
+    type:'bar',
+    data:{labels:['Mooca','Tatuapé','V.Prudente','Centro','Penha','Belém'],datasets:[{data:[1000,820,760,650,540,380],backgroundColor:'#5b9cf6',borderRadius:5,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{...TT(),callbacks:{label:c=>` R$${(c.raw)}k`}}},scales:{x:{grid:GRID,border:BORDER,ticks:{callback:v=>'R$'+v+'k'}},y:{grid:{display:false},border:BORDER}}}
+  });
+}
+
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+chartsInitialized['painel'] = true;
+
 const h = new Date().getHours();
-const greet = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
-document.querySelector('.topbar-title').textContent = greet + ', Marlos ✦';
+document.getElementById('greeting').textContent =
+  (h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', Marlos ✦';
 </script>
 </body>
 </html>
